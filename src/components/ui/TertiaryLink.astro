@@ -1,0 +1,33 @@
+---
+/**
+ * Tertiary link on the @unoff/ui Button styles: one element, one tab stop.
+ * A real <a href> (build-time render, crawlable, works without JS), or a
+ * <button data-cc="…"> for cookie consent actions.
+ *
+ * Never nest the @unoff/ui <Button> here: it renders a focusable <button>,
+ * which breaks out of a parent <button> (the click loses `data-cc`) and adds
+ * a second tab stop inside an <a>.
+ */
+import Button from '@/components/ui/Button.astro'
+
+interface Props {
+  href?: string
+  action?: string
+  label: string
+  size?: 'default' | 'large'
+  current?: boolean
+}
+
+const { href, action, label, size = 'large', current = false } = Astro.props
+---
+
+<Button
+  class="tertiary-link"
+  href={action ? undefined : href}
+  variant="tertiary"
+  size={size}
+  data-cc={action}
+  aria-current={current ? 'page' : undefined}
+>
+  {label}
+</Button>

@@ -1,0 +1,78 @@
+---
+import ArrowDown from '@lucide/astro/icons/move-down'
+import Button from '@/components/ui/Button.astro'
+import Ticker from '@/components/home/Ticker.astro'
+import { hero } from '@/data/products'
+---
+
+<section
+  class="hero"
+  aria-labelledby="hero-title"
+>
+  <div class="hero__card">
+    <Ticker />
+    <div class="hero__content">
+      <div class="hero__texts">
+        <h1
+          class="t-main-title"
+          id="hero-title"
+        >
+          {hero.title}
+        </h1>
+        <p class="t-tagline">{hero.tagline}</p>
+      </div>
+      <Button
+        href={hero.cta.href}
+        variant="primary"
+        block
+      >
+        {hero.cta.label}
+        <ArrowDown slot="icon-end" />
+      </Button>
+    </div>
+  </div>
+</section>
+
+<style>
+  .hero {
+    padding: var(--space-inset-200) var(--layout-gutter) 0;
+  }
+
+  .hero__card {
+    display: grid;
+    position: relative;
+    place-items: center;
+    container-type: size;
+    border: var(--stroke-width-thin) solid var(--site-border-strong);
+    border-radius: var(--site-radius-card);
+    background-color: var(--site-surface);
+    height: clamp(560px, calc(100svh - var(--layout-header-height) - var(--layout-gutter)), 1096px);
+    overflow: clip;
+  }
+
+  .hero__content {
+    display: flex;
+    position: relative;
+    flex-direction: column;
+    gap: var(--space-gap-800);
+    padding: var(--space-inset-800);
+    width: 100%;
+    max-width: calc(var(--layout-content-max) + 2 * var(--space-inset-800));
+  }
+
+  .hero__content > :global(.site-button) {
+    flex: 0 0 auto;
+  }
+
+  .hero__texts {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-gap-400);
+  }
+
+  @media (max-width: 639.98px) {
+    .hero__content {
+      padding: var(--space-inset-600) var(--space-inset-400);
+    }
+  }
+</style>

@@ -1,0 +1,125 @@
+---
+import Logotype from '@/assets/brand/logotype-header.svg'
+import SunIcon from '@lucide/astro/icons/sun'
+import MoonIcon from '@lucide/astro/icons/moon'
+import { site } from '@/config/site'
+---
+
+<header
+  class="header"
+  data-header
+>
+  <div class="header__bar">
+    <a
+      class="header__logo"
+      href="/"
+      aria-label={`${site.name} — home`}
+    >
+      <Logotype
+        aria-hidden="true"
+        width={215}
+        height={45}
+      />
+    </a>
+
+    <!-- Hidden without JS: switching modes needs a script. -->
+    <button
+      class="header__theme icon-button icon-button--default"
+      type="button"
+      aria-label="Switch to dark mode"
+      hidden
+      data-theme-toggle
+    >
+      <MoonIcon class="header__theme-dark" />
+      <SunIcon class="header__theme-light" />
+    </button>
+  </div>
+</header>
+
+<script>
+  import { currentScheme, saveScheme } from '@/scripts/scheme'
+
+  const toggle = document.querySelector<HTMLButtonElement>(
+    '[data-header] [data-theme-toggle]'
+  )
+
+  if (toggle) {
+    const sync = () => {
+      const dark = currentScheme() === 'dark'
+      toggle.setAttribute(
+        'aria-label',
+        dark ? 'Switch to light mode' : 'Switch to dark mode'
+      )
+      toggle.setAttribute('aria-pressed', String(dark))
+    }
+    toggle.hidden = false
+    toggle.addEventListener('click', () => {
+      saveScheme(currentScheme() === 'dark' ? 'light' : 'dark')
+      sync()
+    })
+    sync()
+  }
+</script>
+
+<style>
+  .header {
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    padding: var(--space-inset-200) var(--layout-gutter) 0;
+  }
+
+  /* Three columns so the logo stays centred whatever sits at the right. */
+  .header__bar {
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
+    align-items: center;
+    border: var(--stroke-width-thin) solid var(--site-border-strong);
+    border-radius: var(--site-radius-pill);
+    background-color: var(--site-surface);
+    padding: var(--space-inset-100) var(--space-inset-200) var(--space-inset-100)
+      var(--space-inset-400);
+    min-height: var(--control-size-1600);
+  }
+
+  .header__logo {
+    display: block;
+    grid-column: 2;
+    color: var(--site-ink);
+  }
+
+  .header__logo :global(svg) {
+    width: 180px;
+    height: auto;
+  }
+
+  .header__theme {
+    grid-column: 3;
+    justify-self: end;
+    cursor: pointer;
+    color: var(--icon-button-base-icon-color);
+  }
+
+  .header__theme :global(svg) {
+    width: var(--icon-button-base-icon-width);
+    height: var(--icon-button-base-icon-width);
+  }
+
+  .header__theme :global(.header__theme-light) {
+    display: none;
+  }
+
+  :global([data-mode$='dark']) .header__theme :global(.header__theme-light) {
+    display: block;
+  }
+
+  :global([data-mode$='dark']) .header__theme :global(.header__theme-dark) {
+    display: none;
+  }
+
+  @media (max-width: 639.98px) {
+    .header__logo :global(svg) {
+      width: 140px;
+    }
+  }
+</style>

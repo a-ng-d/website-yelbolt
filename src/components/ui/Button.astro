@@ -1,0 +1,101 @@
+---
+/**
+ * Website button on the @unoff/ui Button styles: a real <a href> (crawlable, one tab stop),
+ * unlike <Button> (JS navigation) and <Button isLink> (<a> nested in <button>).
+ * Link states are mirrored in `styles/unoff-links.css`.
+ */
+import type { HTMLAttributes } from 'astro/types'
+import { isExternal } from '@/config/site'
+
+type Variant = 'primary' | 'secondary' | 'tertiary' | 'alternative'
+
+interface Props extends Omit<HTMLAttributes<'a'>, 'href' | 'type'> {
+  href?: string
+  variant?: Variant
+  size?: 'default' | 'large'
+  block?: boolean
+  iconOnly?: boolean
+  label?: string
+}
+
+const {
+  href,
+  variant = 'primary',
+  size = 'large',
+  block = false,
+  iconOnly = false,
+  label,
+  class: className,
+  ...rest
+} = Astro.props
+
+const external = href ? isExternal(href) : false
+const Tag = href ? 'a' : 'button'
+const hasIcon = Astro.slots.has('icon')
+---
+
+<Tag
+  class:list={[
+    'text-button',
+    `text-button--${variant}`,
+    `text-button--${size}`,
+    'site-button',
+    { 'site-button--block': block, 'site-button--icon-only': iconOnly },
+    className,
+  ]}
+  href={href}
+  type={href ? undefined : 'button'}
+  target={external && !href?.startsWith('mailto:') ? '_blank' : undefined}
+  rel={external ? 'noopener' : undefined}
+  aria-label={iconOnly ? label : undefined}
+  {...rest}
+>
+  {hasIcon && (
+    <span
+      class="text-button__icon"
+      aria-hidden="true"
+    >
+      <slot name="icon" />
+    </span>
+  )}
+  {!iconOnly && (
+    <span class="text-button__label">
+      <slot />
+    </span>
+  )}
+  {Astro.slots.has('icon-end') && (
+    <span
+      class="text-button__icon"
+      aria-hidden="true"
+    >
+      <slot name="icon-end" />
+    </span>
+  )}
+  <slot name="end" />
+</Tag>
+
+<style>
+  .site-button {
+    flex-shrink: 0;
+    cursor: pointer;
+  }
+
+  /* `flex-basis: 0` shares a row evenly; in a column it hits
+     the height instead, so keep the @unoff/ui height as a floor. */
+  .site-button--block {
+    flex: 1 1 0;
+    min-width: 0;
+    min-height: var(--button-base-height);
+  }
+
+  .site-button--icon-only {
+    aspect-ratio: 1;
+    --button-large-padding-left: 0;
+    --button-large-padding-right: 0;
+  }
+
+  .site-button :global(.text-button__icon svg) {
+    width: 100%;
+    height: 100%;
+  }
+</style>

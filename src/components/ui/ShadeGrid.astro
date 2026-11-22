@@ -1,0 +1,224 @@
+---
+interface Area {
+  name: string
+  colStart: number
+  colSpan: number
+  rowStart: number
+  rowSpan: number
+}
+
+interface Wave {
+  src: ImageMetadata
+  inset: string
+}
+
+interface Props {
+  wave: Wave
+  cols: number
+  rows: number
+  areas: Area[]
+  class?: string
+}
+
+const { wave, cols, rows, areas, class: className } = Astro.props
+
+const rendered = await Promise.all(
+  areas.map(async (area) => ({
+    ...area,
+    html: Astro.slots.has(area.name) ? await Astro.slots.render(area.name) : '',
+  }))
+)
+
+const ring: { col: number; row: number }[] = []
+for (let row = 1; row <= rows; row++) {
+  for (let col = 1; col <= cols; col++) {
+    if (row === 1 || row === rows || col === 1 || col === cols)
+      ring.push({ col, row })
+  }
+}
+---
+
+<div
+  class:list={['shade-grid', className]}
+  style={`--cols:${cols};--rows:${rows}`}
+>
+  <div
+    class="shade-grid__glow"
+    aria-hidden="true"
+    style={`inset:${wave.inset};mask-image:url(${wave.src.src})`}
+  >
+    <div class="shade-grid__light"></div>
+  </div>
+  <div
+    class="shade-grid__spot"
+    aria-hidden="true"
+  ></div>
+  <div class="shade-grid__tiles">
+    {ring.map(({ col, row }) => (
+      <span
+        class="shade-grid__tile"
+        aria-hidden="true"
+        style={`grid-area:${row}/${col};--i:${row + col}`}
+      />
+    ))}
+    {rendered.map((area) => (
+      <div
+        class={`shade-grid__area shade-grid__area--${area.name}`}
+        style={`grid-area:${area.rowStart}/${area.colStart}/span ${area.rowSpan}/span ${area.colSpan}`}
+        set:html={area.html}
+      />
+    ))}
+  </div>
+</div>
+
+<script>
+  const finePointer = matchMedia('(hover: hover) and (pointer: fine)')
+
+  for (const grid of document.querySelectorAll<HTMLElement>('.shade-grid')) {
+    let frame = 0
+    const place = (event: PointerEvent) => {
+      const box = grid.getBoundingClientRect()
+      grid.style.setProperty('--spot-x', `${event.clientX - box.left}px`)
+      grid.style.setProperty('--spot-y', `${event.clientY - box.top}px`)
+    }
+
+    grid.addEventListener('pointerenter', (event) => {
+      if (!finePointer.matches) return
+      grid.style.transition = 'none'
+      place(event)
+      void grid.offsetWidth
+      grid.style.transition = ''
+      grid.setAttribute('data-spot', '')
+    })
+
+    grid.addEventListener('pointermove', (event) => {
+      if (!grid.hasAttribute('data-spot')) return
+      cancelAnimationFrame(frame)
+      frame = requestAnimationFrame(() => place(event))
+    })
+
+    grid.addEventListener('pointerleave', () =>
+      grid.removeAttribute('data-spot')
+    )
+  }
+</script>
+
+<style>
+  .shade-grid {
+    position: relative;
+    border: var(--stroke-width-thin) solid var(--site-border-soft);
+    border-radius: var(--site-radius-card);
+    background-color: var(--site-surface-muted);
+    overflow: clip;
+  }
+
+  .shade-grid__glow {
+    position: absolute;
+    mask-size: 100% 100%;
+    mask-repeat: no-repeat;
+    background-image: var(--brand-gradient);
+    background-size: 100% 100%;
+    overflow: hidden;
+    pointer-events: none;
+  }
+
+  .shade-grid__glow::before {
+    position: absolute;
+    opacity: 0.3;
+    inset: 0;
+    background-color: var(--site-surface-muted);
+    content: '';
+  }
+
+  .shade-grid__spot {
+    position: absolute;
+    opacity: 0;
+    mask-image: radial-gradient(
+      circle 240px at var(--spot-x) var(--spot-y),
+      #000 0%,
+      rgb(0 0 0 / 0.55) 35%,
+      transparent 70%
+    );
+    inset: 0;
+    background-image: var(--brand-gradient);
+    pointer-events: none;
+  }
+
+  .shade-grid[data-spot] .shade-grid__spot {
+    opacity: 1;
+  }
+
+  /* Repeating tile of coloured light points, twice as wide: slides seamlessly. */
+  .shade-grid__light {
+    position: absolute;
+    inset: 0 auto 0 0;
+    background-image:
+      radial-gradient(ellipse 9% 22% at 8% 72%, #ff0000, transparent),
+      radial-gradient(ellipse 7% 18% at 24% 88%, #ffb800, transparent),
+      radial-gradient(ellipse 10% 20% at 41% 66%, #24ff00, transparent),
+      radial-gradient(ellipse 8% 24% at 58% 84%, #00d1ff, transparent),
+      radial-gradient(ellipse 9% 18% at 76% 70%, #4200ff, transparent),
+      radial-gradient(ellipse 6% 16% at 92% 90%, #ff0000, transparent);
+    background-size: 50% 100%;
+    background-repeat: repeat-x;
+    width: 200%;
+  }
+
+  .shade-grid__tiles {
+    display: grid;
+    position: relative;
+    grid-template-rows: repeat(
+      var(--rows),
+      minmax(var(--shade-row-min, 48px), auto)
+    );
+    grid-template-columns: repeat(var(--cols), minmax(0, 1fr));
+    gap: var(--space-gap-050);
+    padding: var(--space-gap-050);
+    height: 100%;
+  }
+
+  .shade-grid__tile,
+  .shade-grid__area {
+    border-radius: var(--site-radius-inner);
+    background-color: var(--site-surface);
+  }
+
+  .shade-grid__area {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    overflow: clip;
+  }
+
+  @media (max-width: 799.98px) {
+    /* Side columns get too thin: keep only the top and bottom rows of tiles. */
+    .shade-grid__tiles {
+      grid-template-columns: minmax(0, 1fr);
+    }
+
+    .shade-grid__tile {
+      display: none;
+    }
+
+    .shade-grid__area {
+      grid-column: 1 !important;
+    }
+
+    .shade-grid__tiles::before,
+    .shade-grid__tiles::after {
+      border-radius: var(--site-radius-inner);
+      background-color: var(--site-surface);
+      height: var(--shade-row-min, 48px);
+      content: '';
+    }
+
+    .shade-grid__tiles::before {
+      grid-row: 1;
+    }
+
+    .shade-grid__tiles::after {
+      grid-row: var(--rows);
+    }
+  }
+</style>

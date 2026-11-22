@@ -1,0 +1,37 @@
+---
+import BaseLayout from '@/layouts/BaseLayout.astro'
+import Button from '@/components/ui/Button.astro'
+---
+
+<BaseLayout
+  title="Page not found — Yelbolt"
+  description="This page doesn't exist or has moved. Go back to the Yelbolt home page to find UI Color Palette, Unoff and the other open-apps we craft."
+  noindex
+>
+  <section
+    class="section not-found"
+    aria-labelledby="not-found-title"
+  >
+    <div class="not-found__card title-card title-card--straight">
+      <h1
+        class="t-section-title"
+        id="not-found-title"
+      >
+        Page not found
+      </h1>
+      <p class="t-accent">This page doesn't exist or has moved.</p>
+      <Button href="/">Back to home</Button>
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .not-found {
+    padding-top: var(--space-inset-200);
+  }
+
+  .not-found__card {
+    align-items: flex-start;
+    min-height: 480px;
+  }
+</style>

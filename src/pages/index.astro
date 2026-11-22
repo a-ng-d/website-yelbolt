@@ -1,0 +1,16 @@
+---
+import BaseLayout from '@/layouts/BaseLayout.astro'
+import Jumbotron from '@/components/home/Jumbotron.astro'
+import Products from '@/components/home/Products.astro'
+import {
+  homePage,
+  organization,
+  person,
+  website,
+} from '@/data/structured-data'
+---
+
+<BaseLayout jsonLd={[organization(), person(), website(), homePage()]}>
+  <Jumbotron />
+  <Products />
+</BaseLayout>

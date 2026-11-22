@@ -1,0 +1,189 @@
+---
+import Logotype from '@/assets/brand/logotype-footer.svg'
+import LinkedinIcon from '@/assets/brand/linkedin.svg'
+import CoffeeIcon from '@lucide/astro/icons/coffee'
+import Button from '@/components/ui/Button.astro'
+import TertiaryLink from '@/components/ui/TertiaryLink.astro'
+import { footerNav, isExternal, links, site } from '@/config/site'
+
+const ext = (href: string) =>
+  isExternal(href) ? { target: '_blank', rel: 'noopener' } : {}
+---
+
+<footer class="footer">
+  <div class="footer__grid">
+    <div class="footer__card footer__brand surface-card">
+      <Logotype
+        class="footer__logo"
+        preserveAspectRatio="xMinYMid meet"
+        role="img"
+        aria-label={site.name}
+      />
+      <div class="footer__legal">
+        <span>{site.license}, {site.name}</span>
+        <span aria-hidden="true">・</span>
+        <a
+          href={links.author}
+          {...ext(links.author)}
+        >
+          {site.author.name}
+        </a>
+        <span aria-hidden="true">・</span>
+        <a
+          href={links.termsOfSale}
+          {...ext(links.termsOfSale)}
+        >
+          Terms of Sale
+        </a>
+      </div>
+    </div>
+
+    <section
+      class="footer__card surface-card"
+      aria-labelledby="footer-contact"
+    >
+      <p
+        class="t-paragraph-primary-title"
+        id="footer-contact"
+      >
+        Contact
+      </p>
+      <a href={`mailto:${site.email}`}>{site.email}</a>
+    </section>
+
+    <nav
+      class="footer__card surface-card"
+      aria-label="Resources"
+    >
+      <p class="t-paragraph-primary-title">Resources</p>
+      <ul class="footer__list">
+        {footerNav.resources.map((item) => (
+          <li>
+            <TertiaryLink
+              href={item.href}
+              label={item.label}
+              size="default"
+            />
+          </li>
+        ))}
+      </ul>
+    </nav>
+
+    <section
+      class="footer__card surface-card"
+      aria-labelledby="footer-connect"
+    >
+      <p
+        class="t-paragraph-primary-title"
+        id="footer-connect"
+      >
+        Connect
+      </p>
+      <div class="footer__buttons">
+        <Button
+          href={links.linkedin}
+          variant="secondary"
+          iconOnly
+          label={`Follow ${site.author.name} on LinkedIn`}
+        >
+          <LinkedinIcon
+            slot="icon"
+            aria-hidden="true"
+          />
+        </Button>
+        <Button
+          href={links.coffee}
+          variant="secondary"
+          iconOnly
+          label="Buy the author a coffee"
+        >
+          <CoffeeIcon
+            slot="icon"
+            aria-hidden="true"
+          />
+        </Button>
+      </div>
+    </section>
+  </div>
+</footer>
+
+<style>
+  .footer {
+    padding: var(--layout-section-gap) var(--layout-gutter) var(--layout-gutter);
+  }
+
+  .footer__grid {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    grid-auto-rows: minmax(400px, auto);
+    gap: var(--space-gap-200);
+  }
+
+  .footer__card {
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    gap: var(--space-gap-400);
+    padding: var(--space-inset-800);
+  }
+
+  .footer__list li {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--space-gap-200);
+  }
+
+  .footer__list {
+    display: grid;
+    gap: var(--space-gap-200);
+    padding: 0;
+    list-style: none;
+  }
+
+  .footer__buttons {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-gap-200);
+  }
+
+  .footer__brand {
+    gap: var(--space-gap-800);
+  }
+
+  .footer__brand :global(.footer__logo) {
+    flex: 1 1 auto;
+    width: 100%;
+    height: auto;
+    max-height: 240px;
+  }
+
+  .footer__legal a {
+    text-decoration: underline;
+  }
+
+  .footer__legal {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--space-gap-200);
+  }
+
+  @media (max-width: 1023.98px) {
+    .footer__grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      grid-auto-rows: minmax(320px, auto);
+    }
+  }
+
+  @media (max-width: 639.98px) {
+    .footer__grid {
+      grid-template-columns: minmax(0, 1fr);
+      grid-auto-rows: auto;
+    }
+
+    .footer__card {
+      min-height: 240px;
+    }
+  }
+</style>

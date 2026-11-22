@@ -1,0 +1,90 @@
+/*
+ * @unoff/ui styles button states with `:enabled`, which only matches form
+ * controls. The site uses `.text-button` on links (<a>) and disclosure
+ * toggles (<summary>) and tabs (<label>), so their hover/active states are mirrored here with
+ * the same @unoff/ui variables.
+ */
+:is(a, summary, label).text-button {
+  cursor: pointer;
+}
+
+:is(a, summary, label).text-button--primary:hover {
+  --button-base-background-color: var(--button-primary-background-color-hover);
+  --button-base-text-color: var(--button-primary-text-color-hover);
+}
+
+:is(a, summary, label).text-button--primary:active {
+  --button-base-background-color: var(
+    --button-primary-background-color-pressed
+  );
+  --button-base-text-color: var(--button-primary-text-color-pressed);
+}
+
+:is(a, summary, label).text-button--secondary:hover {
+  --button-base-background-color: var(
+    --button-secondary-background-color-hover
+  );
+  --button-base-border-color: var(--button-secondary-border-color-hover);
+}
+
+.card:hover .text-button--secondary {
+  --button-base-background-color: var(
+    --button-secondary-background-color-hover
+  );
+  --button-base-border-color: var(--button-secondary-border-color-hover);
+}
+
+:is(a, summary, label).text-button--secondary:active {
+  --button-base-background-color: var(
+    --button-secondary-background-color-pressed
+  );
+  --button-base-border-color: var(--button-secondary-border-color-pressed);
+}
+
+:is(a, summary, label).text-button--tertiary:hover {
+  --button-base-text-decoration: var(--button-tertiary-text-decoration-hover);
+}
+
+:is(a, summary, label).text-button--alternative:hover {
+  --button-base-background-color: var(
+    --button-alternative-background-color-hover
+  );
+}
+
+:is(a, summary, label).text-button:active {
+  transform: var(--button-base-transform-pressed);
+}
+
+/* <summary> keeps its disclosure marker unless removed. */
+summary.text-button {
+  list-style: none;
+}
+
+summary.text-button::-webkit-details-marker {
+  display: none;
+}
+
+/* Icon button styles used as a decorative toggle inside a <summary>. */
+summary:hover .icon-button,
+summary:focus-visible .icon-button {
+  --icon-button-base-background-color: var(
+    --icon-button-default-background-color-hover
+  );
+}
+
+/*
+ * Keyboard focus: one ring + halo site-wide (same as `:focus-visible` in
+ * global.css). @unoff/ui draws button and card borders with `outline` and
+ * only styles `:enabled:focus`, so links, summaries and labels would lose the
+ * ring or get a different one.
+ * Tertiary buttons also keep their hover underline.
+ */
+:is(.text-button, .icon-button, .card):focus-visible {
+  outline: var(--site-focus-outline);
+  outline-offset: var(--site-focus-offset);
+  box-shadow: var(--site-focus-halo);
+}
+
+.text-button.text-button--tertiary:focus-visible {
+  --button-base-text-decoration: var(--button-tertiary-text-decoration-hover);
+}

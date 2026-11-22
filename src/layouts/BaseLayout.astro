@@ -1,0 +1,93 @@
+---
+import '@/styles/global.css'
+
+import Seo, { type Props as SeoProps } from '@/components/seo/Seo.astro'
+import Header from '@/components/layout/Header.astro'
+import Footer from '@/components/layout/Footer.astro'
+import { site } from '@/config/site'
+
+export type Props = SeoProps
+
+const theme = { mode: site.mode, key: site.themeStorageKey }
+---
+
+<!doctype html>
+<html
+  lang={site.locale}
+  data-theme="yelbolt"
+  data-mode={`${site.mode}-light`}
+>
+  <head>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1"
+    />
+    <!-- Before paint: the saved or system scheme on <html> and on every nested
+         [data-mode-base] (a block that wears another brand's mode). -->
+    <script
+      is:inline
+      define:vars={{ theme }}
+    >
+      try {
+        const saved = localStorage.getItem(theme.key)
+        const scheme = (
+          saved
+            ? saved === 'dark'
+            : matchMedia('(prefers-color-scheme: dark)').matches
+        )
+          ? 'dark'
+          : 'light'
+        document.documentElement.dataset.mode = `${theme.mode}-${scheme}`
+        document.documentElement.dataset.scheme = scheme
+      } catch {}
+      if (!matchMedia('(prefers-reduced-motion: reduce)').matches) {
+        document.documentElement.classList.add('motion')
+        setTimeout(() => {
+          if (!window.__revealReady)
+            document.documentElement.classList.remove('motion')
+        }, 3000)
+      }
+    </script>
+    <link
+      rel="icon"
+      type="image/png"
+      href="/favicon.png"
+    />
+    <link
+      rel="apple-touch-icon"
+      sizes="180x180"
+      href="/apple-touch-icon.png"
+    />
+    <link
+      rel="manifest"
+      href="/site.webmanifest"
+    />
+    <link
+      rel="sitemap"
+      href="/sitemap-index.xml"
+    />
+    <meta
+      name="generator"
+      content={Astro.generator}
+    />
+    <Seo {...Astro.props} />
+  </head>
+  <body>
+    <a
+      class="skip-link"
+      href="#main"
+    >
+      Skip to content
+    </a>
+    <Header />
+    <main id="main">
+      <slot />
+    </main>
+    <Footer />
+    <script>
+      import '@/scripts/reveal'
+      import '@/scripts/scheme'
+    </script>
+  </body>
+</html>

@@ -1,0 +1,74 @@
+---
+/**
+ * The product icons drifting behind the hero (Figma "Ticker"). The set is
+ * drawn twice so the drift loops seamlessly; still without motion.
+ */
+import UiColorPalette from '@/assets/ticker/ui-color-palette.svg'
+import Unoff from '@/assets/ticker/unoff.svg'
+import Yelbolt from '@/assets/ticker/yelbolt.svg'
+
+const icons = [UiColorPalette, Yelbolt, Unoff]
+---
+
+<div
+  class="ticker"
+  aria-hidden="true"
+>
+  <div class="ticker__track">
+    {[0, 1].map(() =>
+      icons.map((Icon) => (
+        <Icon
+          class="ticker__icon"
+          width={1080}
+          height={1080}
+        />
+      ))
+    )}
+  </div>
+</div>
+
+<style>
+  .ticker {
+    position: absolute;
+    inset: 0;
+    overflow: clip;
+    pointer-events: none;
+  }
+
+  /* Icon i is centred at (0.91 × i + 0.5) × size: the still frame centres the
+     Yelbolt icon (i = 1); the loop then drifts by one set (3 × 0.91 × size). */
+  .ticker__track {
+    display: flex;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    translate: calc(var(--ticker-size) * -1.41) -50%;
+    width: max-content;
+    color: var(--site-surface-muted);
+  }
+
+  .ticker :global(.ticker__icon) {
+    flex-shrink: 0;
+    margin-inline-end: calc(var(--ticker-size) * -0.09);
+    width: var(--ticker-size);
+    height: var(--ticker-size);
+  }
+
+  .ticker {
+    --ticker-size: min(1080px, 100cqh);
+  }
+
+  :global(.motion) .ticker__track {
+    animation: ticker-drift 90s linear infinite;
+  }
+
+  :global(.motion) .ticker:not([data-inview]) .ticker__track {
+    animation-play-state: paused;
+  }
+
+  @keyframes ticker-drift {
+    to {
+      translate: calc(var(--ticker-size) * -4.14) -50%;
+    }
+  }
+</style>

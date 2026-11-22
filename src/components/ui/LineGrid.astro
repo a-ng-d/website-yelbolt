@@ -1,0 +1,205 @@
+---
+/**
+ * The unoff counterpart of ShadeGrid (Figma "Lines"): full-width rows with
+ * rounded bottoms, separated by 2px grooves. Blurred brand light circles under
+ * the rows and shows through the grooves; under the pointer a beam concentrates
+ * it. More rows than needed are drawn and clipped, so the rows keep their
+ * height whatever the content.
+ */
+interface Props {
+  /** Rows drawn, centred and clipped by the frame. */
+  count?: number
+  /** Row height in px (Figma: 18). */
+  rowHeight?: number
+  class?: string
+}
+
+const { count = 72, rowHeight = 18, class: className } = Astro.props
+const middle = Math.floor(count / 2)
+---
+
+<div
+  class:list={['line-grid', className]}
+  style={`--line-height:${rowHeight}px`}
+>
+  <div
+    class="line-grid__glow"
+    aria-hidden="true"
+  >
+    <span class="line-grid__blob line-grid__blob--a"></span>
+    <span class="line-grid__blob line-grid__blob--b"></span>
+    <span class="line-grid__blob line-grid__blob--c"></span>
+    <div class="line-grid__light"></div>
+  </div>
+  <div
+    class="line-grid__spot"
+    aria-hidden="true"
+  >
+  </div>
+  <div
+    class="line-grid__lines"
+    aria-hidden="true"
+  >
+    {Array.from({ length: count }, (_, row) => (
+      <span
+        class="line-grid__line"
+        style={`--i:${Math.abs(row - middle)}`}
+      />
+    ))}
+  </div>
+  <div class="line-grid__veil" aria-hidden="true"></div>
+  <div class="line-grid__content">
+    <slot />
+  </div>
+</div>
+
+<script>
+  const finePointer = matchMedia('(hover: hover) and (pointer: fine)')
+
+  for (const grid of document.querySelectorAll<HTMLElement>('.line-grid')) {
+    let frame = 0
+    const place = (event: PointerEvent) => {
+      const box = grid.getBoundingClientRect()
+      grid.style.setProperty('--spot-x', `${event.clientX - box.left}px`)
+      grid.style.setProperty('--spot-y', `${event.clientY - box.top}px`)
+    }
+
+    grid.addEventListener('pointerenter', (event) => {
+      if (!finePointer.matches) return
+      grid.style.transition = 'none'
+      place(event)
+      void grid.offsetWidth
+      grid.style.transition = ''
+      grid.setAttribute('data-spot', '')
+    })
+
+    grid.addEventListener('pointermove', (event) => {
+      if (!grid.hasAttribute('data-spot')) return
+      cancelAnimationFrame(frame)
+      frame = requestAnimationFrame(() => place(event))
+    })
+
+    grid.addEventListener('pointerleave', () =>
+      grid.removeAttribute('data-spot')
+    )
+  }
+</script>
+
+<style>
+  .line-grid {
+    display: grid;
+    position: relative;
+    isolation: isolate;
+    border: var(--stroke-width-thin) solid var(--site-border-strong);
+    border-radius: var(--site-radius-card);
+    background-color: var(--site-surface-muted);
+    overflow: clip;
+  }
+
+  .line-grid__glow,
+  .line-grid__spot,
+  .line-grid__lines,
+  .line-grid__veil {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+  }
+
+  .line-grid__glow {
+    inset: -10%;
+    filter: blur(64px);
+  }
+
+  .line-grid__blob {
+    position: absolute;
+    border-radius: 25%;
+  }
+
+  .line-grid__blob--a {
+    top: 0;
+    left: 8%;
+    background-color: var(--brand-glow-b);
+    width: 34%;
+    aspect-ratio: 1;
+  }
+
+  .line-grid__blob--b {
+    right: 10%;
+    bottom: 0;
+    background-color: var(--brand-glow-a);
+    width: 28%;
+    aspect-ratio: 1;
+  }
+
+  .line-grid__blob--c {
+    bottom: 4%;
+    left: 0;
+    background-color: var(--brand-glow-c);
+    width: 14%;
+    aspect-ratio: 1;
+  }
+
+  /* Repeating strip of light points, twice as wide: slides seamlessly. */
+  .line-grid__light {
+    position: absolute;
+    inset: 0 auto 0 0;
+    background-image:
+      radial-gradient(
+        ellipse 8% 20% at 12% 70%,
+        var(--brand-glow-a),
+        transparent
+      ),
+      radial-gradient(ellipse 7% 18% at 38% 24%, var(--brand-glow-b), transparent),
+      radial-gradient(ellipse 9% 22% at 63% 82%, var(--brand-glow-c), transparent),
+      radial-gradient(ellipse 6% 16% at 88% 36%, var(--brand-glow-a), transparent);
+    background-size: 50% 100%;
+    background-repeat: repeat-x;
+    width: 200%;
+  }
+
+  .line-grid__spot {
+    opacity: 0;
+    mask-image: radial-gradient(
+      circle 240px at var(--spot-x) var(--spot-y),
+      #000 0%,
+      rgb(0 0 0 / 0.55) 35%,
+      transparent 70%
+    );
+    background-image: var(--brand-gradient);
+  }
+
+  .line-grid[data-spot] .line-grid__spot {
+    opacity: 1;
+  }
+
+  .line-grid__lines {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: var(--space-gap-050);
+  }
+
+  .line-grid__line {
+    flex: 0 0 var(--line-height);
+    border-radius: 0 0 var(--site-radius-card) var(--site-radius-card);
+    background-color: var(--site-surface);
+  }
+
+  /* Darkens the middle (Figma's central blob) so text stays readable. */
+  .line-grid__veil {
+    background: radial-gradient(
+      ellipse 45% 40% at 50% 50%,
+      var(--site-surface) 30%,
+      transparent
+    );
+    opacity: 0.85;
+  }
+
+  .line-grid__content {
+    display: flex;
+    position: relative;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+  }
+</style>
