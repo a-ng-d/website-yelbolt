@@ -18,7 +18,9 @@ npm run preview
 ## Deploy (Netlify)
 
 `netlify.toml` holds everything: build command `npm run build`, publish directory `dist`,
-Node 24, long cache on `/_astro/*` and security headers. No environment variable is needed.
+Node 24, long cache on `/_astro/*`, security headers and redirects. No environment variable
+is needed. Netlify builds every push to `master` and a deploy preview for every pull request
+(`master` only takes pull requests).
 
 Optional after the first deploy: add `yelbolt.co` to Google Search Console and submit
 `https://yelbolt.co/sitemap-index.xml` (set `site.googleSiteVerification` in
