@@ -3,7 +3,11 @@ import wave from '@/assets/decor/graphs-reinsurance.svg'
 import LineGrid from '@/components/ui/LineGrid.astro'
 import ShadeGrid from '@/components/ui/ShadeGrid.astro'
 import Tag from '@/components/ui/Tag.astro'
+import UiColorPalette from '@/assets/product/ui-color-palette.svg'
+import Unoff from '@/assets/product/unoff.svg'
 import { products } from '@/data/products'
+
+const icons = { uicp: UiColorPalette, unoff: Unoff }
 ---
 
 <section
@@ -18,7 +22,9 @@ import { products } from '@/data/products'
     Products
   </h2>
   <div class="products__grid">
-    {products.map((product) => (
+    {products.map((product) => {
+      const Icon = icons[product.id]
+      return (
       <a
         class="product card"
         href={product.href}
@@ -47,7 +53,13 @@ import { products } from '@/data/products'
           )}
         </div>
         <div class="product__info">
-          <Tag>{product.tag}</Tag>
+          <div class="product__head">
+            <Icon
+              class="product__icon"
+              aria-hidden="true"
+            />
+            <Tag>{product.tag}</Tag>
+          </div>
           <h3
             class="t-paragraph-secondary-title"
             id={`product-${product.id}`}
@@ -63,7 +75,8 @@ import { products } from '@/data/products'
           </span>
         </div>
       </a>
-    ))}
+      )
+    })}
   </div>
   <!-- Before paint: the cards wear their product's mode in the page's scheme. -->
   <script is:inline>
@@ -133,6 +146,19 @@ import { products } from '@/data/products'
     align-items: flex-start;
     gap: var(--space-gap-400);
     padding: var(--space-inset-800);
+  }
+
+  .product__head {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    align-self: stretch;
+  }
+
+  .product__head :global(.product__icon) {
+    width: auto;
+    height: var(--control-size-1600);
+    color: var(--color-icon-brand-default);
   }
 
   .product :global(.tag) {
