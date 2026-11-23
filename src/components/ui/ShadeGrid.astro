@@ -29,17 +29,25 @@ const rendered = await Promise.all(
   }))
 )
 
-const ring: { col: number; row: number }[] = []
+const covered = (col: number, row: number) =>
+  areas.some(
+    (area) =>
+      col >= area.colStart &&
+      col < area.colStart + area.colSpan &&
+      row >= area.rowStart &&
+      row < area.rowStart + area.rowSpan
+  )
+
+const cells: { col: number; row: number }[] = []
 for (let row = 1; row <= rows; row++) {
   for (let col = 1; col <= cols; col++) {
-    if (row === 1 || row === rows || col === 1 || col === cols)
-      ring.push({ col, row })
+    if (!covered(col, row)) cells.push({ col, row })
   }
 }
 ---
 
 <div
-  class:list={['shade-grid', className]}
+  class:list={['shade-grid', { 'shade-grid--full': areas.length === 0 }, className]}
   style={`--cols:${cols};--rows:${rows}`}
 >
   <div
@@ -54,7 +62,7 @@ for (let row = 1; row <= rows; row++) {
     aria-hidden="true"
   ></div>
   <div class="shade-grid__tiles">
-    {ring.map(({ col, row }) => (
+    {cells.map(({ col, row }) => (
       <span
         class="shade-grid__tile"
         aria-hidden="true"
@@ -192,12 +200,13 @@ for (let row = 1; row <= rows; row++) {
   }
 
   @media (max-width: 799.98px) {
-    /* Side columns get too thin: keep only the top and bottom rows of tiles. */
-    .shade-grid__tiles {
+    /* Side columns get too thin: keep only the top and bottom rows of tiles.
+       A grid without areas has no content to protect and keeps every tile. */
+    .shade-grid:not(.shade-grid--full) .shade-grid__tiles {
       grid-template-columns: minmax(0, 1fr);
     }
 
-    .shade-grid__tile {
+    .shade-grid:not(.shade-grid--full) .shade-grid__tile {
       display: none;
     }
 
@@ -205,19 +214,19 @@ for (let row = 1; row <= rows; row++) {
       grid-column: 1 !important;
     }
 
-    .shade-grid__tiles::before,
-    .shade-grid__tiles::after {
+    .shade-grid:not(.shade-grid--full) .shade-grid__tiles::before,
+    .shade-grid:not(.shade-grid--full) .shade-grid__tiles::after {
       border-radius: var(--site-radius-inner);
       background-color: var(--site-surface);
       height: var(--shade-row-min, 48px);
       content: '';
     }
 
-    .shade-grid__tiles::before {
+    .shade-grid:not(.shade-grid--full) .shade-grid__tiles::before {
       grid-row: 1;
     }
 
-    .shade-grid__tiles::after {
+    .shade-grid:not(.shade-grid--full) .shade-grid__tiles::after {
       grid-row: var(--rows);
     }
   }
