@@ -1,4 +1,5 @@
-# yelbolt.co
+[![Netlify Status](https://api.netlify.com/api/v1/badges/e5e116a6-b6d5-4a29-b229-017c35a570c2/deploy-status)](https://app.netlify.com/projects/yelbolt/deploys)
+# Yelbolt - Website
 
 The website of [Yelbolt](https://yelbolt.co), the studio behind
 [UI Color Palette](https://ui-color-palette.com) and [Unoff](https://unoff.dev). Static
