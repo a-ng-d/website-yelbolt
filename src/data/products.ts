@@ -38,7 +38,7 @@ export const products: Product[] = [
     id: 'unoff',
     name: 'Unoff',
     tag: 'Framework',
-    text: 'The fastest way to build and monetize your plugin',
+    text: 'The fastest way to build plugins for the design marketplaces',
     href: links.unoff,
     modeBase: 'yelbolt-uno',
     visual: 'lines',
